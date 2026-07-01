@@ -4,3 +4,19 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: akash_redis_db
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  redis_data:
+  mongodb_data:

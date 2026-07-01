@@ -52,14 +52,12 @@ route.post("/genrate-otp", async (req, res) => {
 
   const result = await redis.set(`otp:${phone}`, otp, "EX", 300);
 
-  return res
-    .status(200)
-    .json({
-      success: true,
-      message: "otp genrate successfully",
-      result: result,
-      OTP: otp,
-    });
+  return res.status(200).json({
+    success: true,
+    message: "otp genrate successfully",
+    result: result,
+    OTP: otp,
+  });
 });
 
 route.post("/login", async (req, res) => {
@@ -69,11 +67,11 @@ route.post("/login", async (req, res) => {
   }
 
   const storedOtp = await redis.get(`otp:${phone}`);
-
+  console.log("strored otp: ", storedOtp);
   if (!storedOtp) {
     return res.status(400).json({ success: false, message: "OTP is expired" });
   }
-  if (storedOtp === enteredOtp) {
+  if (storedOtp === String(enteredOtp)) {
     return res
       .status(200)
       .json({ success: true, message: "login successfully" });
