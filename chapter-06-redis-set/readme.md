@@ -7,3 +7,8 @@ GET /posts/:postId/likes
 GET /posts/:postId/likes/count
 GET /posts/:postId/is-liked/:userId
 DELETE /posts/:postId/like
+
+
+
+# Vital commands
+
