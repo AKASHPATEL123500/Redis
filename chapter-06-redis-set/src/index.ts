@@ -94,6 +94,28 @@ app.get("/posts/:postId/likes/check", async (req: Request, res: Response) => {
   });
 });
 
+// like and unlike a post mean reomve the like if already liked and add the like if not liked
+app.post("/posts/:postId/like-remove", async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const { postId } = req.params;
+
+  const result = await redis.srem(postLikeKey(postId), userId);
+
+  if (result === 1) {
+    return res.status(200).json({
+      success: true,
+      message: `User ${userId} unliked post ${postId}`,
+    });
+  }
+
+  if (result === 0) {
+    return res.status(200).json({
+      success: true,
+      message: `User had no like this post`,
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
