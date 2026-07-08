@@ -130,3 +130,5 @@ ZREVRANK key member
 - Use **Lists** for ordered feeds.
 - Use **Sets** for unique collections.
 - Use **Sorted Sets** for ranking and leaderboards.
+
+# chapter 09 one topic is pending that is `WATCH`
