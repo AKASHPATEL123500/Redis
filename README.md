@@ -132,3 +132,48 @@ ZREVRANK key member
 - Use **Sorted Sets** for ranking and leaderboards.
 
 # chapter 09 one topic is pending that is `WATCH`
+
+```js
+Redis Foundation
+│
+├── Connection
+├── Strings
+├── TTL
+├── Hashes
+├── Lists
+├── Sets
+├── Sorted Sets
+├── Pub/Sub
+├── Transactions
+├── Pipeline
+│
+├── Lua Scripts
+├── SCAN
+├── Bitmaps
+├── HyperLogLog
+├── Geospatial
+├── Streams
+├── Memory Optimization
+├── Eviction Policies
+├── Persistence
+├── Replication
+├── Sentinel
+├── Cluster
+├── Monitoring
+├── Slow Log
+├── Security
+├── Benchmarking
+├── ...
+│
+└── BullMQ
+      │
+      ├── Producer
+      ├── Worker
+      ├── Retry
+      ├── Delay
+      ├── Priority
+      ├── Rate Limit
+      ├── Repeat Jobs
+      ├── Dead Letter Queue
+      └── Production Email Queue
+```
