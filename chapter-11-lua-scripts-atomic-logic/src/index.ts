@@ -8,72 +8,234 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
 
-app.post("/user/normal-import", async (req: Request, res: Response) => {
-  const users = req.body;
+app.get("/lua/v1", async (req: Request, res: Response) => {
+  const result = await redis.eval(
+    `
+    return "Hello Akash"
+    `,
+    0,
+  );
 
-  console.time("Normal import");
-  const startTime = performance.now();
+  return res.json({ result: result });
+});
 
-  for (const user of users) {
-    await redis.hset(`user:${user.id}`, {
-      id: user.id.toString(),
-      name: user.name,
-      age: user.age.toString(),
-    });
-  }
+app.get("/lua/v2", async (req: Request, res: Response) => {
+  const result = await redis.eval(
+    `
+     redis.call("SET","name","Akash")
+     return redis.call("GET","name")
+    `,
+    0,
+  );
+  return res.json({ result: result });
+});
 
-  const endTime = performance.now();
-  console.timeEnd("Normal import");
-  return res.status(200).json({
-    success: true,
-    message: `User imported using normal redis command`,
-    performance: `${(endTime - startTime).toFixed(2)}ms`,
+app.get("/lua/v3", async (req: Request, res: Response) => {
+  const result = await redis.eval(
+    `
+    redis.call("SET","age","22")
+
+    redis.call("INCR","age")
+
+    return redis.call("GET","age")
+    
+    `,
+    0,
+  );
+
+  res.json({ result: result });
+});
+
+app.get("/lua/v4", async (req: Request, res: Response) => {
+  const result = await redis.eval(
+    `
+redis.call("SET",KEYS[1],ARGV[1])
+
+return redis.call("GET",KEYS[1])
+
+`,
+
+    1,
+
+    "framework",
+
+    "Express",
+  );
+
+  res.json({ result: result });
+});
+
+app.get("/lua/v5", async (req: Request, res: Response) => {
+  const result = await redis.eval(
+    `
+redis.call("SET",KEYS[1],ARGV[1])
+return redis.call("GET",KEYS[1])
+
+`,
+    1,
+
+    "database",
+
+    "Redis",
+  );
+
+  res.json({ result: result });
+});
+
+app.get("/lua/v6", async (req: Request, res: Response) => {
+  const result = await redis.eval(
+    `
+redis.call("SET",KEYS[1],ARGV[1])
+redis.call("INCR",KEYS[2])
+return redis.call("GET",KEYS[2])
+
+`,
+
+    2,
+
+    "username",
+    "loginCount",
+
+    "Akash",
+  );
+
+  res.json({ result: result });
+});
+
+app.get("/lua/v7", async (req: Request, res: Response) => {
+  const script = `
+  local marks = 40;
+  if marks >= 50 then
+  return "PASS"
+  end
+  return "FAIL"
+  `;
+
+  const scriptAge = `
+  local age = 18;
+
+  if age >= 18 then
+  return "You can vote!"
+  end
+  return "You are Teen"
+  `;
+
+  await redis.set("balance", 1000);
+
+  const scriptBalance = `
+  local balance = tonumber(redis.call("GET", KEYS[1])) or 0
+  local amount = tonumber(ARGV[1]) or 0
+
+  if balance >= amount then
+    local newBalance = balance - amount
+    redis.call("SET", KEYS[1], newBalance)
+    return newBalance
+  end
+
+  return "Insufficient Balance"
+  `;
+
+  const before = await redis.get("balance");
+  const response = await redis.eval(scriptBalance, 1, "balance", 1000);
+  const after = await redis.get("balance");
+  // syntax:
+  // redis.eval(script, numberOfKeys, key1, key2, ...arg1, arg2);
+
+  res.json({
+    currentBlance: response,
+    before: before,
+    acfter: after,
+    explanation: {
+      keys: "KEYS[1] is the Redis key name passed from the script call",
+      argv: "ARGV[1] is the value passed to the script",
+    },
   });
 });
 
-app.post("/user/pipline", async (req: Request, res: Response) => {
-  const users = req.body;
+app.get("/lua/rate-limit", async (req: Request, res: Response) => {
+  const clientId = req.query.clientId || "anonymous";
+  const limit = 5;
+  const windowSeconds = 60;
 
-  console.time("Pipline Time");
-  const startTime = performance.now();
+  const script = `
+    local key = KEYS[1]
+    local limit = tonumber(ARGV[1])
+    local window = tonumber(ARGV[2])
 
-  const pipline = redis.pipeline();
+    local current = redis.call("INCR", key)
 
-  for (const user of users) {
-    await pipline.hset(`user:${user.id}`, {
-      id: user.id.toString(),
-      name: user.name,
-      age: user.age.toString,
-    });
-  }
+    if current == 1 then
+      redis.call("EXPIRE", key, window)
+    end
 
-  const resutl = await pipline.exec();
+    if current > limit then
+      return 0
+    end
 
-  const endTime = performance.now();
-  console.timeEnd("Pipline Time");
+    return 1
+  `;
 
-  return res.status(200).json({
-    success: true,
-    message: `User imported using normal redis command`,
-    performance: `${(endTime - startTime).toFixed(2)}ms`,
-    totalCommands: resutl?.length,
+  const key = `rate-limit:${clientId}`;
+  const response = await redis.eval(script, 1, key, limit, windowSeconds);
+  const currentCount = await redis.get(key);
+  const currentValue = Number(currentCount ?? 0);
+  const remaining = Math.max(limit - currentValue, 0);
+
+  res.json({
+    allowed: response === 1,
+    clientId,
+    limit,
+    windowSeconds,
+    remaining: Number(remaining),
   });
 });
 
-const pipeline = redis.pipeline();
+function userKey(username: string): string {
+  return `user:${username}`;
+}
 
-pipeline.set("name", "Akash");
+app.post("/rate-limit", async (req, res) => {
+  const { username } = req.body;
 
-pipeline.set("city", "Lucknow");
+  const key = `rate-limit:${username}`;
 
-pipeline.get("name");
+  const current = await redis.get(key);
 
-pipeline.del("city");
+  // First Request
+  if (!current) {
+    await redis.set(key, 1);
+    await redis.expire(key, 60);
 
-pipeline.incr("name");
-const result = await pipeline.exec();
-console.log(result);
+    return res.json({
+      success: true,
+      totalRequests: 1,
+      message: "Request Allowed",
+    });
+  }
 
+  const count = Number(current);
+
+  // Limit Cross
+  if (count >= 5) {
+    const retryAfter = await redis.ttl(key);
+
+    return res.status(429).json({
+      success: false,
+      message: "Too Many Requests",
+      retryAfter,
+    });
+  }
+
+  const newCount = count + 1;
+
+  await redis.set(key, newCount);
+
+  return res.json({
+    success: true,
+    totalRequests: newCount,
+    message: "Request Allowed",
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
