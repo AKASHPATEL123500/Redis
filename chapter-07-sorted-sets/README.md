@@ -6,13 +6,10 @@
 
 rank name score
 
-1 Rohit 2500
-
-2 Rahul 1200
-
-3 Akash 850
-
-4 Aman 600
+1. Rohit 2500
+2. Rahul 1200
+3. Akash 850
+4. Aman 600
 
 Sorted set features:
 
