@@ -125,7 +125,9 @@ app.get("/:shortCode", async (req: Request, res: Response) => {
     if (cacheOriginalUrl) {
       await redis.incr("cache:hits");
       await redis.incr(clickKey(shortCode));
-      await Url.updateOne({ shortCode }, { $inc: { clickCount: 1 } });
+
+      // TODO: BullMQ ke baad is DB update ko background job me move karenge.
+      // await Url.updateOne({ shortCode }, { $inc: { clickCount: 1 } });
       return res.redirect(cacheOriginalUrl);
     }
 
@@ -139,7 +141,8 @@ app.get("/:shortCode", async (req: Request, res: Response) => {
     await redis.incr("cache:misses");
     await redis.incr(clickKey(shortCode));
 
-    await Url.updateOne({ shortCode }, { $inc: { clickCount: 1 } });
+    // TODO: BullMQ ke baad is DB update ko background job me move karenge.
+    // await Url.updateOne({ shortCode }, { $inc: { clickCount: 1 } });
 
     return res.redirect(url.originalUrl);
   } catch (error) {
