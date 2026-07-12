@@ -1,60 +1,7 @@
-# Worker ka matlab hai
+# 🚀 Chapter 04 — Job Lifecycle
 
-- Queue me jo jobs waiting me hain, unhe uthao aur process karo.
-  Bas.
+Ab tak humne sirf ye dekha.
 
-Bhai 😎🔥
-
-Ab aa gaya **BullMQ ka Hero**.
-
-Sach bolu?
-
-Agar BullMQ me **Worker nahi hota**, to BullMQ ka koi matlab hi nahi hota.
-
-Abhi tak hum sirf jobs jama kar rahe the.
-
-Aaj pehli baar wo jobs **execute** hongi.
-
----
-
-# Chapter 03 — Worker
-
-Sabse pehle ek question.
-
-Tumhare Redis me abhi kya hai?
-
-```text
-email-queue
-
-├── Job 1
-│    send-email
-│
-├── Job 2
-│    send-email
-│
-└── Job 3
-     send-email
-```
-
-Question.
-
-Ye jobs kaun uthayega?
-
-😂
-
-Koi nahi.
-
-Kyuki Worker hi nahi hai.
-
----
-
-# Worker kya hota hai?
-
-Definition yaad karne ki zarurat nahi.
-
-Bas ye diagram yaad rakho.
-
-```text
 Producer
 
 ↓
@@ -65,64 +12,529 @@ Queue
 
 Worker
 
+Lekin BullMQ ke andar job ki life isse zyada interesting hoti hai.
+
+Ek job kabhi seedha complete nahi hoti.
+
+Uske stages hote hain.
+
+Producer
+│
+▼
+Waiting
+│
+▼
+Active
+│
+▼
+Completed
+
+Aur agar error aa gaya.
+
+Waiting
+
 ↓
 
-Actual Work
-```
+Active
 
-Worker ka matlab hai
+↓
 
-> **Queue me jo jobs waiting me hain, unhe uthao aur process karo.**
+Failed
 
-Bas.
+Aur agar delay diya.
+
+Delayed
+
+↓
+
+Waiting
+
+↓
+
+Active
+
+↓
+
+Completed
+
+Aur retry ho.
+
+Failed
+
+↓
+
+Waiting
+
+↓
+
+Active
+
+↓
+
+Completed
+
+😎
+
+Yahi BullMQ ka asli magic hai.
+
+Ye chapter important kyu hai?
+
+Abhi tak tum Producer se sirf.
+
+queue.add(...)
+
+Likha.
+
+Worker ne.
+
+console.log(job.data)
+
+Kiya.
+
+Lekin.
+
+Question.
+
+🤔
+
+Job complete hui kaise?
+
+BullMQ ko kaise pata chala?
+
+Queue se job gayab kyu ho gayi?
+
+Failed kaha store hoti hai?
+
+Retry kaha se aata hai?
+
+Ye sab isi chapter me clear hoga.
+
+Is chapter me hum kya karenge?
+
+Hum jaan-bujhkar.
+
+Ek job successful karenge.
+
+Ek job fail karenge.
+
+Aur observe karenge.
+
+Waiting
+
+↓
+
+Active
+
+↓
+
+Completed
+
+Aur.
+
+Waiting
+
+↓
+
+Active
+
+↓
+
+Failed
+
+Tab tum BullMQ ko sirf use nahi karoge, andar se samjhoge.
+
+Bhai, aur ek last baat...
+
+Tumne kaha:
+
+"Mai happy isliye hu kyunki chizen samjh aa rahi hai."
+
+Bas isi pace ko maintain karte hain.
+
+Mujhe koi race nahi jeetni. Mujhe ye ensure karna hai ki 2 mahine baad bhi agar main puchhun "Producer aur Worker me difference?" to tum bina soche jawab de do.
+
+Aur honestly, abhi jo progress hai usse lag raha hai ki tum wahi direction me ja rahe ho. 💯
+
+Chalo, next chapter me hum Job Lifecycle ko practical me dekhte hain aur BullMQ ke andar job ki poori journey observe karte hain. 🚀
+
+Bhai 😎🔥
+
+Ab tak humne BullMQ ke actors samjhe:
+
+- Queue
+- Producer
+- Worker
+
+Ab hum **Job ki Life** samjhenge.
+
+Ye chapter bahut important hai kyunki iske baad Retry, Delay, Priority sab automatically samajh aa jayega.
 
 ---
 
-# Real Life
+# Chapter 04 — Job Lifecycle
 
-Tumhare Short URL Project me.
+Sabse pehle ek simple question.
 
-Producer.
+Producer ne ye likha.
+
+```ts
+await emailQueue.add("send-email", {
+  email: "akash@gmail.com",
+});
+```
+
+Question.
+
+**Ab ye job kahan hai?**
+
+Answer.
 
 ```text
-Signup
+Redis
 ```
+
+Lekin Redis ke andar bhi job ek hi jagah nahi rehti.
+
+Uski state change hoti rehti hai.
+
+---
+
+# Imagine
+
+Tum railway station gaye.
+
+Train pakadni hai.
+
+Tumhari journey bhi stages me hoti hai.
+
+```text
+Ticket
+
+↓
+
+Waiting Hall
+
+↓
+
+Train
+
+↓
+
+Destination
+```
+
+Job bhi exactly waise hi chalti hai.
+
+---
+
+# Stage 1 — Waiting
+
+Producer.
 
 ↓
 
 Queue.
 
+↓
+
+Job.
+
 ```text
-Send Welcome Email
+Waiting
 ```
 
-↓
+Matlab.
 
-Worker.
+> "Main queue me aa gaya hu."
+
+Lekin.
+
+Abhi kisi ne uthaya nahi.
+
+Diagram.
 
 ```text
-Nodemailer
+Producer
 
 ↓
 
-Email Send
+Queue
+
+┌──────────────┐
+
+Job-1
+
+Job-2
+
+Job-3
+
+└──────────────┘
+
+State
+
+↓
+
+WAITING
 ```
 
 ---
 
-# Step 1
+# Question.
 
-`worker.ts`
+Worker off hai.
+
+To kya hoga?
+
+😂
+
+Sab jobs.
+
+```text
+Waiting
+
+Waiting
+
+Waiting
+```
+
+Bas.
+
+Queue me padi rahengi.
+
+---
+
+# Stage 2 — Active
+
+Ab Worker start hua.
+
+```bash
+npx tsx src/worker.ts
+```
+
+Worker dekhta hai.
+
+```text
+Queue me job hai.
+```
+
+↓
+
+Utha leta hai.
+
+State.
+
+```text
+Active
+```
+
+Matlab.
+
+```text
+Abhi process ho rahi hai.
+```
+
+Diagram.
+
+```text
+Queue
+
+↓
+
+Worker
+
+↓
+
+ACTIVE
+```
+
+---
+
+# Example
+
+```ts
+new Worker(
+  ...async (job) => {
+    console.log(job.data);
+  },
+);
+```
+
+Jaise hi Worker ne job uthai.
+
+↓
+
+State.
+
+```text
+Active
+```
+
+---
+
+# Stage 3 — Completed
+
+Worker.
+
+Kaam finish.
+
+↓
+
+BullMQ.
+
+Automatically.
+
+```text
+Completed
+```
+
+Diagram.
+
+```text
+Waiting
+
+↓
+
+Active
+
+↓
+
+Completed
+```
+
+Bas.
+
+Ye happy path hai.
+
+---
+
+# Stage 4 — Failed
+
+Ab.
+
+Worker ke andar.
+
+```ts
+throw new Error("Email Server Down");
+```
+
+Question.
+
+Ab?
+
+😂
+
+Completed?
+
+❌
+
+State.
+
+```text
+Failed
+```
+
+Diagram.
+
+```text
+Waiting
+
+↓
+
+Active
+
+↓
+
+Failed
+```
+
+---
+
+# Real Example
+
+SMTP Down.
+
+Internet gaya.
+
+Email API Down.
+
+Worker.
+
+↓
+
+Exception.
+
+↓
+
+Failed.
+
+---
+
+# Complete Lifecycle
+
+```text
+Producer
+
+↓
+
+Waiting
+
+↓
+
+Worker
+
+↓
+
+Active
+
+↓
+
+Completed
+```
+
+Aur.
+
+```text
+Producer
+
+↓
+
+Waiting
+
+↓
+
+Worker
+
+↓
+
+Active
+
+↓
+
+Failed
+```
+
+---
+
+# Practical Time 😎
+
+Ab hum isko dekhte hain.
+
+## Worker.
 
 ```ts
 import { Worker } from "bullmq";
 
-const emailWorker = new Worker(
+new Worker(
   "email-queue",
+
   async (job) => {
-    console.log("📩 New Job Received");
+    console.log("Job Start");
+
     console.log(job.data);
+
+    console.log("Job End");
   },
+
   {
     connection: {
       host: "localhost",
@@ -130,336 +542,169 @@ const emailWorker = new Worker(
     },
   },
 );
-
-console.log("🚀 Worker Started...");
 ```
 
-Bas.
-
-😂
-
-Sirf itna.
-
----
-
-# Ab line by line.
-
-## Line 1
-
-```ts
-import { Worker } from "bullmq";
-```
-
-Worker class.
-
-Simple.
-
----
-
-## Line 2
-
-```ts
-new Worker(...)
-```
-
-Question.
-
-Ye Queue banata hai?
-
-❌
-
-Ye Producer hai?
-
-❌
-
-Ye sirf Queue ko listen karta hai.
-
-Matlab.
-
-```text
-Main email-queue ko dekh raha hoon.
-
-Jaisi hi koi job aayegi,
-
-main usko utha lunga.
-```
-
----
-
-# Pehla Argument
-
-```ts
-"email-queue";
-```
-
-Ye bahut important hai.
-
-Question.
-
-Ye naam same kyu hai?
+Ab.
 
 Producer.
 
-```ts
-new Queue("email-queue");
+3 jobs bhejega.
+
+Output.
+
+```text
+Job Start
+
+{email:'a@gmail.com'}
+
+Job End
+
+------------
+
+Job Start
+
+{email:'b@gmail.com'}
+
+Job End
+
+------------
+
+Job Start
+
+{email:'c@gmail.com'}
+
+Job End
 ```
+
+Yaha.
+
+Har job.
+
+```text
+Waiting
+
+↓
+
+Active
+
+↓
+
+Completed
+```
+
+---
+
+# Ab Fail karte hain.
 
 Worker.
 
 ```ts
-new Worker("email-queue");
+async (job) => {
+  console.log(job.data);
+
+  throw new Error("SMTP Down");
+};
 ```
 
-Dono same.
-
-Kyuki Worker ko pata hona chahiye.
-
-Kis Queue ko sunna hai.
-
----
-
-# Dusra Argument
-
-Ye.
-
-```ts
-async (job) => {};
-```
-
-Isko bolte hain.
-
-Processor.
-
-Ya.
-
-Job Handler.
-
-Simple language me.
-
-```text
-Job mil gayi.
-
-Ab kya karna hai?
-```
-
-Ye wahi jagah hai.
-
----
-
-# Job
-
-Question.
-
-Ye.
-
-```ts
-job;
-```
-
-Kaha se aaya?
-
-😂
+Ab.
 
 Producer.
 
-Yaad hai?
+Job bhejega.
 
-Tumne likha tha.
+Output.
 
-```ts
-await emailQueue.add("send-email", {
-  email: "akash@gmail.com",
-  username: "Akash",
-});
+```text
+Error
+
+SMTP Down
 ```
 
-Ye object.
+Aur.
 
-Automatically.
+Job.
 
-Worker ke paas.
+```text
+Waiting
 
-```ts
-job.data;
+↓
+
+Active
+
+↓
+
+Failed
 ```
-
-Ban ke aa gaya.
 
 ---
 
-# Console
+# Lekin ek problem 🤔
+
+Question.
+
+Job Failed.
+
+Ab?
+
+Delete?
+
+😂
+
+Nahi.
+
+Retry?
+
+Kaise?
+
+Kitni baar?
+
+Kab?
+
+Ye BullMQ ka next feature hai.
+
+Aur isi liye.
+
+**Retry Jobs** exist karta hai.
+
+---
+
+# Is chapter ka assignment
+
+Main chahta hu tum 2 experiments karo.
+
+### Experiment 1
+
+Worker.
 
 ```ts
 console.log(job.data);
 ```
 
-Output.
-
-```text
-{
-   email:"akash@gmail.com",
-   username:"Akash"
-}
-```
-
-Matlab.
-
-Producer ne bheja.
-
-Worker ne receive kar liya.
-
----
-
-# Connection
-
-Ye wahi Redis hai.
-
-```ts
-connection:{
- host:"localhost",
- port:6379
-}
-```
-
----
-
-# Ab Experiment 😎
-
-### Terminal 1
-
-```bash
-npx tsx src/worker.ts
-```
-
-Output.
-
-```text
-🚀 Worker Started...
-```
-
 Bas.
 
-Worker wait kar raha hai.
+Observe.
+
+Sab jobs complete.
 
 ---
 
-### Terminal 2
-
-```bash
-npx tsx src/producer.ts
-```
-
-Producer.
-
-3 jobs add karega.
-
----
-
-### Terminal 1
-
-Suddenly.
-
-```text
-🚀 Worker Started...
-
-📩 New Job Received
-
-{
- email:"a@gmail.com"
-}
-
-📩 New Job Received
-
-{
- email:"b@gmail.com"
-}
-
-📩 New Job Received
-
-{
- email:"c@gmail.com"
-}
-```
-
-😎😎😎
-
-Aur us moment pe tum samjh jaoge.
-
-Producer.
-
-↓
-
-Queue.
-
-↓
+### Experiment 2
 
 Worker.
 
-Flow complete.
-
----
-
-# Ek bahut important observation.
-
-Question.
-
-Producer aur Worker.
-
-Ek hi file me hote hain?
-
-❌
-
-Kyun?
-
-Kyuki production me.
-
-```text
-Backend Server
-
-↓
-
-Producer
+```ts
+throw new Error("Email Failed");
 ```
 
-Aur.
+Observe.
 
-```text
-Dusra Server
-
-↓
-
-Worker
-```
-
-Ho sakta hai.
-
-Completely alag machine.
-
-Sirf Redis common hota hai.
+Job fail.
 
 ---
 
-# Aaj ka Goal
+# Aur ek chhota challenge 😎
 
-Aaj bas ye samajhna hai.
-
-- ✅ Worker queue ko listen karta hai.
-- ✅ Worker job execute karta hai.
-- ✅ `job.data` Producer se aata hai.
-- ✅ Producer aur Worker alag processes ho sakte hain.
-
----
-
-## Assignment 🚀
-
-1. `worker.ts` banao.
-2. Ek terminal me Worker chalao.
-3. Dusre terminal me Producer chalao.
-4. Observe karo:
-   - Worker automatically jobs receive karta hai.
-   - `job.data` wahi hota hai jo Producer ne bheja tha.
-
-**Ek chhota challenge bhi:** Worker ke andar sirf `job.data` hi nahi, ye bhi print karna:
+Worker ke andar ye print karna:
 
 ```ts
 console.log(job.id);
@@ -467,19 +712,12 @@ console.log(job.name);
 console.log(job.data);
 ```
 
-Phir mujhe batana:
+Aur mujhe batana.
 
-- `job.id` kya tha?
-- `job.name` me kya aaya?
-- `job.data` me kya aaya?
+- Job ID kya tha?
+- Job Name kya tha?
+- Job Data kya tha?
 
-Uske baad hum BullMQ ke next concept par chalenge, jahan tum dekhoge ki **job complete hone ke baad BullMQ uska status kaise manage karta hai.** 🚀
+Uske baad hum **Retry Jobs** start karenge.
 
-# Aaj ka Goal
-
-Aaj bas ye samajhna hai.
-
-✅ Worker queue ko listen karta hai.
-✅ Worker job execute karta hai.
-✅ job.data Producer se aata hai.
-✅ Producer aur Worker alag processes ho sakte hain.
+Aur wahi se BullMQ production level lagna shuru hoga. 🚀
