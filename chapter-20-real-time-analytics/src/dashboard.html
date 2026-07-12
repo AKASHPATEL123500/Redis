@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real-Time Analytics Dashboard</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #101010;
+        color: #f5f5f5;
+      }
+      header {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        padding: 24px;
+        text-align: center;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 2rem;
+      }
+      main {
+        padding: 24px;
+        display: grid;
+        gap: 24px;
+      }
+      .cards {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      .card {
+        background: #18181b;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 18px;
+        min-height: 120px;
+      }
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #9ca3af;
+      }
+      .card p {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+      .table-wrapper {
+        overflow-x: auto;
+        border-radius: 16px;
+        background: #18181b;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 14px 16px;
+        text-align: left;
+      }
+      th {
+        color: #a1a1aa;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+      }
+      .status.cached {
+        background: #14b8a6;
+        color: #ecfccb;
+      }
+      .status.not-cached {
+        background: #f97316;
+        color: #fff7ed;
+      }
+      .loading {
+        text-align: center;
+        padding: 24px;
+        color: #a1a1aa;
+      }
+      .footer {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Real-Time Short URL Dashboard</h1>
+    </header>
+    <main>
+      <section class="cards">
+        <div class="card">
+          <h2>Total Short URLs</h2>
+          <p id="totalUrls">—</p>
+        </div>
+        <div class="card">
+          <h2>Total Clicks</h2>
+          <p id="totalClicks">—</p>
+        </div>
+        <div class="card">
+          <h2>Cache Entries</h2>
+          <p id="cacheEntries">—</p>
+        </div>
+        <div class="card">
+          <h2>Cache Hits / Misses</h2>
+          <p id="cacheRatio">—</p>
+        </div>
+      </section>
+
+      <section class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Short Code</th>
+              <th>Original URL</th>
+              <th>Clicks</th>
+            </tr>
+          </thead>
+          <tbody id="topLinks"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Live Status</h2>
+        <p id="liveStatus">Waiting for updates...</p>
+      </section>
+
+      <div class="footer">Refreshes every 5 seconds for real-time metrics.</div>
+    </main>
+
+    <script>
+      const totalUrls = document.getElementById("totalUrls");
+      const totalClicks = document.getElementById("totalClicks");
+      const cacheEntries = document.getElementById("cacheEntries");
+      const cacheRatio = document.getElementById("cacheRatio");
+      const topLinks = document.getElementById("topLinks");
+      const liveStatus = document.getElementById("liveStatus");
+
+      async function fetchDashboard() {
+        try {
+          const response = await fetch("/analytics/overview");
+          const data = await response.json();
+
+          totalUrls.textContent = data.totalUrls;
+          totalClicks.textContent = data.totalClicks;
+          cacheEntries.textContent = data.cacheEntries;
+          cacheRatio.textContent = `${data.cacheHits} / ${data.cacheMisses}`;
+
+          topLinks.innerHTML = data.topLinks
+            .map(
+              (link, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${link.shortCode}</td>
+              <td><a href="${link.originalUrl}" target="_blank">${link.originalUrl}</a></td>
+              <td>${link.clickCount}</td>
+            </tr>
+          `,
+            )
+            .join("");
+
+          liveStatus.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        } catch (error) {
+          liveStatus.textContent =
+            "Unable to load data. Check server or Redis.";
+        }
+      }
+
+      fetchDashboard();
+      setInterval(fetchDashboard, 1000);
+    </script>
+  </body>
+</html>

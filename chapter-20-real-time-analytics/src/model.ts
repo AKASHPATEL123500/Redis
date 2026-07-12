@@ -5,6 +5,9 @@ import mongoose from "mongoose";
 interface IUser {
   originalUrl: string;
   shortCode: string;
+  clickCount?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const urlSchema = new mongoose.Schema<IUser>(
@@ -17,6 +20,10 @@ const urlSchema = new mongoose.Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+    },
+    clickCount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },
