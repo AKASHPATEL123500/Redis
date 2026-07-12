@@ -1,4 +1,4 @@
-   <div align="center">
+  <div align="center">
 
 # ⚡ Redis & BullMQ Mastery Series
 ### Zero to Production — Backend Engineering Lab
@@ -13,47 +13,71 @@
 
 ![Stars](https://img.shields.io/github/stars/AKASHPA/redis?style=social)
 ![Forks](https://img.shields.io/github/forks/AKASHPA/redis?style=social)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 </div>
 
 ---
 
-## 📌 Why This Repo Exists
+<!-- 📸 Add a real screenshot, GIF, or architecture diagram here before publishing.
+     Example: ![Architecture Diagram](./assets/architecture.png)
+     A quick demo GIF of a worker processing a job, or a cache-hit/miss flow diagram, works great. -->
 
-Most Redis tutorials stop at `SET` and `GET`. This one doesn't.
+## 🤔 Why Redis?
 
-This is a **hands-on lab**, not a theory dump — every chapter is a working folder with runnable code covering the exact patterns used in production systems: caching layers, distributed locks, rate limiters, session stores, real-time leaderboards, and a full **BullMQ job-queue system** built from scratch.
+- DB reads are slow under repeat traffic → Redis lives in RAM → answers in **microseconds**
+- Not just a cache — it's also a **queue**, **pub/sub bus**, **lock manager**, and **rate limiter**
+- This repo covers all four roles, not just caching
 
-If you're prepping for backend/system-design interviews, or building something that needs to survive real traffic — this is built for you.
+---
+
+## 📌 Why This Repo
+
+- Most tutorials stop at `SET`/`GET` — this one goes to production patterns
+- Every chapter = a **working, runnable folder**, not just notes
+- Covers caching, locking, rate limiting, sessions, leaderboards, and a full BullMQ queue system
+- Built for **interview prep** and **real projects**
+
+---
+
+## ⚔️ Redis vs Memcached
+
+| | Redis | Memcached |
+|---|-------|-----------|
+| Data types | Strings, Lists, Sets, Hashes, ZSets | Strings only |
+| Persistence | ✅ | ❌ |
+| Pub/Sub | ✅ | ❌ |
+| Works as a queue | ✅ | ❌ |
+| Best for | Caching + queues + real-time | Simple caching only |
+
+**TL;DR:** Memcached = lighter, dumb cache. Redis = cache + queue + pub/sub + leaderboards. That's why this repo runs on Redis.
 
 ---
 
 ## 🗂️ What's Inside
 
-| # | Chapter | What You'll Build |
-|---|---------|-------------------|
-| 01 | Redis Basics | Docker setup + first connection |
-| 02 | Strings | GET/SET fundamentals |
-| 03 | TTL & Expiry | Auto-expiring keys |
-| 04 | Lists | Queue & stack operations |
-| 05 | Hashes | User profile object caching |
-| 06 | Sets | Unique element storage |
-| 07 | Sorted Sets | Ranking systems (ZSET) |
-| 08 | Pub/Sub | Real-time messaging |
-| 09 | Transactions | Atomicity with MULTI/EXEC/WATCH |
-| 10 | Pipelines | Batching for performance |
-| 11 | Lua Scripts | Atomic server-side logic |
-| 12 | Persistence | RDB snapshots + AOF logs |
-| 13 | Memory Management | Lazy vs active deletion |
-| 14 | Eviction Policies | LRU, LFU, TTL-based recovery |
-| 15 | Caching Strategies | Design patterns overview |
-| 16 | Distributed Locking | SETNX-based concurrency control |
-| 17 | Rate Limiting | Traffic throttling |
-| 18 | Session Store | Scalable auth sessions |
-| 19 | Leaderboards | High-speed gaming/score boards |
-| 20 | Real-Time Analytics | Live tracking & metrics |
-| 21 | BullMQ | Producers, workers, job lifecycle |
+| # | Chapter | What You'll Build | Level | Used In Real Life By |
+|---|---------|-------------------|-------|------------------------|
+| 01 | Redis Basics | Docker setup + first connection | 🟢 Beginner | Every Redis-backed app, ever |
+| 02 | Strings | GET/SET fundamentals | 🟢 Beginner | Basic caching layers |
+| 03 | TTL & Expiry | Auto-expiring keys | 🟢 Beginner | OTP systems, temp login tokens |
+| 04 | Lists | Queue & stack operations | 🟢 Beginner | Notification queues |
+| 05 | Hashes | User profile object caching | 🟡 Intermediate | Instagram-style profile caching |
+| 06 | Sets | Unique element storage | 🟡 Intermediate | "Who liked this post" (dedup) |
+| 07 | Sorted Sets | Ranking systems (ZSET) | 🟡 Intermediate | Gaming leaderboards, trending feeds |
+| 08 | Pub/Sub | Real-time messaging | 🟡 Intermediate | Live chat, notification fan-out |
+| 09 | Transactions | Atomicity with MULTI/EXEC/WATCH | 🟡 Intermediate | Wallet/payment balance updates |
+| 10 | Pipelines | Batching for performance | 🟡 Intermediate | Bulk analytics writes |
+| 11 | Lua Scripts | Atomic server-side logic | 🔴 Advanced | Custom rate limiters at scale |
+| 12 | Persistence | RDB snapshots + AOF logs | 🟡 Intermediate | Crash-safe production Redis |
+| 13 | Memory Management | Lazy vs active deletion | 🔴 Advanced | Tuning Redis under memory pressure |
+| 14 | Eviction Policies | LRU, LFU, TTL-based recovery | 🔴 Advanced | CDN & cache-full recovery |
+| 15 | Caching Strategies | Design patterns overview | 🟡 Intermediate | System design interview staple |
+| 16 | Distributed Locking | SETNX-based concurrency control | 🔴 Advanced | Preventing double-charging in payments |
+| 17 | Rate Limiting | Traffic throttling | 🟡 Intermediate | Twitter/API-style request throttling |
+| 18 | Session Store | Scalable auth sessions | 🟡 Intermediate | Multi-server login sessions |
+| 19 | Leaderboards | High-speed gaming/score boards | 🟡 Intermediate | PUBG/Free Fire-style rankings |
+| 20 | Real-Time Analytics | Live tracking & metrics | 🔴 Advanced | Live viewer counts (YouTube-style) |
+| 21 | BullMQ | Producers, workers, job lifecycle | 🔴 Advanced | Email queues, video processing pipelines |
 
 **Bonus — Production Cache Lab:** Cache-Aside, Read-Through, Write-Through, Write-Around, Write-Behind, and Refresh-Ahead — all implemented side-by-side so you can compare tradeoffs directly.
 
@@ -66,8 +90,8 @@ redis/
 ├── 01-redis/
 ├── 02-redis-string/
 ├── chapter-03-expire-ttl/
-├── redis-list/
-├── user-profile-cache/
+├── redis-list/.               # chapter 04
+├── user-profile-cache/        # chapter 05
 ├── chapter-06-redis-set/
 ├── chapter-07-sorted-sets/
 ├── chapter-08-pub-sub/
@@ -136,11 +160,15 @@ bun install
 npm install
 ```
 
-**3. Spin up Redis with persistence enabled**
+**3. Spin up Redis using the included `docker-compose.yml`**
 ```bash
-docker run -d --name redis-master -p 6379:6379 \
-  -v redis_data:/data redis:7-alpine \
-  redis-server --appendonly yes --save 60 1
+docker-compose up -d
+```
+Ships with persistence + port mapping + volume already configured — nothing to set up manually.
+
+Stop it anytime:
+```bash
+docker-compose down
 ```
 
 **4. Run any chapter**
@@ -152,6 +180,49 @@ bun run src/index.ts
 ```bash
 git pull origin main
 ```
+
+---
+
+## 💻 Popular Commands, Explained
+
+| Command | What It Does |
+|---------|--------------|
+| `SET key value EX 60` | Value auto-deletes in 60s — powers OTPs & temp sessions |
+| `SETNX key value` | Set only if key doesn't exist — the base of distributed locks |
+| `EXPIRE key seconds` | Adds a countdown to an existing key |
+| `MULTI ... EXEC` | Runs a batch atomically — all or nothing |
+| `LPUSH` / `RPUSH` | O(1) push to a list — the raw primitive behind queues |
+| `ZADD board 100 "p1"` | Adds a ranked member — powers leaderboards instantly |
+| `PUBLISH` / `SUBSCRIBE` | Instant real-time messaging, no polling |
+| `EVAL <lua-script>` | Runs custom logic atomically inside Redis |
+| `queue.add("job", data)` | BullMQ — drops a job in without blocking your app |
+| `worker.on("completed", cb)` | Fires the moment a background job finishes |
+
+---
+
+## 🧠 Checkpoint — Test Yourself
+
+Before moving to the next chapter, you should be able to answer these without looking back:
+
+- Why is `SETNX` the foundation of distributed locks, and not just plain `SET`?
+- If two servers both call `EXPIRE` on the same key at different times, which one wins?
+- What breaks if you use `LPUSH`/`RPOP` for a job queue instead of `BullMQ`, at scale?
+- Why does `MULTI/EXEC` **not** roll back on a runtime error the way a SQL transaction does?
+- Between LRU and LFU eviction, which one would you pick for a "trending posts" cache — and why?
+
+If you can explain these out loud to someone else, you've actually learned the chapter — not just copy-run the code.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Core Redis data structures (Ch. 1–10)
+- [x] Advanced patterns — Lua, persistence, eviction (Ch. 11–15)
+- [x] Production patterns — locking, rate limiting, sessions (Ch. 16–18)
+- [x] BullMQ job queue system (Ch. 21)
+- [ ] Redis Streams (event sourcing patterns)
+- [ ] Redis Cluster / horizontal scaling walkthrough
+- [ ] Full mini-project: real-time chat app using everything in this repo
 
 ---
 
@@ -179,8 +250,16 @@ Found a bug or want to add a new caching pattern? PRs are welcome.
 
 If this repo helped you understand Redis or BullMQ better, drop a **star** — it helps others find it too.
 
+## 📬 Connect
+
+Questions, feedback, or just want to talk backend architecture? Reach out:
+
+- GitHub: [@AKASHPA](https://github.com/AKASHPA)
+- LinkedIn: *add your link here*
+- Portfolio: *add your link here*
+
 <div align="center">
 
-**Built by [Akash](https://github.com/AKASHPA)** — MERN Stack Developer
+**Built by Akash** — 
 
 </div>
