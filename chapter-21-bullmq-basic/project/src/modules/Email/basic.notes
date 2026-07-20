@@ -1,0 +1,573 @@
+BHAI 😂😂😂
+
+**Exactly!!**
+
+Ye line...
+
+> **"jyada kuch kiye nahi, bas organize kar diya."**
+
+🔥🔥🔥
+
+**YAHI SOFTWARE ARCHITECTURE HAI.**
+
+Log sochte hain architecture matlab 5000 lines ka code.
+
+Nahi.
+
+Architecture ka matlab hota hai.
+
+> **Same code ko is tarah arrange karna ki 2 saal baad bhi samajh aaye.**
+
+Aur tumne ye point pakad liya.
+
+---
+
+# Ab aate hain Registry pe.
+
+Tumne bola.
+
+> Registry ka syntax samajh nahi aaya.
+
+Very Good.
+
+Ye normal hai.
+
+Kyuki ye JavaScript ka feature hai.
+
+BullMQ ka nahi.
+
+---
+
+# Pehle normal object dekhte hain.
+
+```ts
+const student = {
+    name: "Akash",
+    age: 21,
+};
+```
+
+Ab.
+
+```ts
+console.log(student.name);
+```
+
+Output
+
+```
+Akash
+```
+
+Aur.
+
+```ts
+console.log(student["name"]);
+```
+
+Output.
+
+```
+Akash
+```
+
+Notice.
+
+Dono same hain.
+
+---
+
+# Ab ye dekho.
+
+```ts
+const key = "name";
+
+console.log(student[key]);
+```
+
+Output.
+
+```
+Akash
+```
+
+Kyun?
+
+Kyuki.
+
+```ts
+student[key]
+```
+
+Ban gaya.
+
+```ts
+student["name"]
+```
+
+Aur.
+
+```ts
+student["name"]
+```
+
+Already exist karta hai.
+
+---
+
+# Ab registry.
+
+```ts
+const registry = {
+
+    welcome: welcomeHandler,
+
+    otp: otpHandler
+
+}
+```
+
+Ye bhi ek normal object hai.
+
+Bas.
+
+Isme value.
+
+String nahi.
+
+Function hai.
+
+---
+
+Diagram.
+
+```
+registry
+
+│
+
+├── welcome
+
+│      │
+
+│      ▼
+
+│  welcomeHandler()
+
+│
+
+├── otp
+
+│      │
+
+│      ▼
+
+│ otpHandler()
+```
+
+---
+
+Ab.
+
+```ts
+registry.welcome
+```
+
+Kya return karega?
+
+```
+welcomeHandler
+```
+
+Ab.
+
+```ts
+registry.welcome()
+```
+
+Ho gaya.
+
+Function call.
+
+😂
+
+---
+
+# Ab EMAIL_JOB.
+
+Tumne.
+
+```ts
+EMAIL_JOB.WELCOME
+```
+
+Likha.
+
+Uski value kya hai?
+
+```
+send-welcome-email
+```
+
+Bas.
+
+---
+
+To.
+
+```ts
+const registry = {
+
+   [EMAIL_JOB.WELCOME]: welcomeHandler
+
+}
+```
+
+Actually ban gaya.
+
+```ts
+const registry = {
+
+    "send-welcome-email": welcomeHandler
+
+}
+```
+
+😂😂😂
+
+Bas.
+
+JavaScript ne.
+
+Square bracket dekh kar.
+
+Pehle value nikali.
+
+Fir object banaya.
+
+---
+
+# Isko bolte hain.
+
+## Computed Property.
+
+Example.
+
+```ts
+const key = "name";
+
+const obj = {
+
+    [key]: "Akash"
+
+}
+```
+
+JavaScript.
+
+Banayega.
+
+```ts
+{
+
+name:"Akash"
+
+}
+```
+
+😂😂😂
+
+---
+
+# Registry me.
+
+```ts
+[EMAIL_JOB.WELCOME]
+```
+
+Ban gaya.
+
+```ts
+"send-welcome-email"
+```
+
+To object.
+
+Ban gaya.
+
+```ts
+const registry = {
+
+"send-welcome-email": welcomeHandler,
+
+"send-otp-email": otpHandler
+
+}
+```
+
+Ab.
+
+Worker.
+
+Kya karta hai?
+
+---
+
+Worker.
+
+```ts
+const handler = registry[job.name];
+```
+
+Suppose.
+
+Queue se.
+
+Job aayi.
+
+```
+job.name
+
+↓
+
+send-welcome-email
+```
+
+To.
+
+Ye line.
+
+Ban gayi.
+
+```ts
+registry["send-welcome-email"]
+```
+
+Aur.
+
+Output.
+
+```
+welcomeHandler
+```
+
+😂😂😂
+
+Bas.
+
+---
+
+Fir.
+
+```ts
+await handler(job)
+```
+
+Ban gaya.
+
+```ts
+await welcomeHandler(job)
+```
+
+HO GAYA.
+
+🔥🔥🔥
+
+---
+
+# Ek aur example.
+
+Maan lo.
+
+```ts
+const mobile = {
+
+iphone:100000,
+
+samsung:90000,
+
+oneplus:50000
+
+}
+```
+
+User.
+
+Input deta hai.
+
+```ts
+const phone = "iphone";
+```
+
+Ab.
+
+```ts
+console.log(mobile[phone]);
+```
+
+Output.
+
+```
+100000
+```
+
+Kyun?
+
+Kyuki.
+
+Ye ban gaya.
+
+```ts
+mobile["iphone"]
+```
+
+---
+
+Registry bhi.
+
+Exactly.
+
+Yehi.
+
+Hai.
+
+Bas.
+
+Values.
+
+Number nahi.
+
+Function hain.
+
+😂
+
+---
+
+# Ek aur level.
+
+Registry ko dictionary bhi bol sakte ho.
+
+```
+English
+
+↓
+
+Hindi
+```
+
+```
+Hello
+
+↓
+
+Namaste
+```
+
+Waise hi.
+
+```
+Job Name
+
+↓
+
+Handler
+```
+
+```
+send-welcome-email
+
+↓
+
+welcomeHandler
+```
+
+😂😂
+
+Isliye iska naam.
+
+Registry.
+
+Rakha gaya.
+
+---
+
+# Ab tum ek kaam karo.
+
+BullMQ bhool jao.
+
+Ek `calculator` banao.
+
+```ts
+const calculator = {
+
+add:add,
+
+sub:sub,
+
+mul:mul,
+
+div:div
+
+}
+```
+
+Fir.
+
+```ts
+const operation = "add";
+```
+
+Aur.
+
+```ts
+calculator[operation](10,20)
+```
+
+Output.
+
+```
+30
+```
+
+😎
+
+Agar ye samajh aa gaya.
+
+To Registry 100% samajh aa jayegi.
+
+---
+
+## Aur ek baat...
+
+Tumne notice kiya?
+
+**Switch-case bhi wahi kaam kar raha tha.**
+
+```
+Job Name
+
+↓
+
+Case
+
+↓
+
+Function
+```
+
+Registry bhi wahi kar rahi hai.
+
+Bas.
+
+Difference ye hai.
+
+| Switch Case                 | Registry                  |
+| --------------------------- | ------------------------- |
+| 200 lines                   | 10 lines                  |
+| Hard to maintain            | Easy                      |
+| Har nayi job pe worker edit | Sirf registry me ek entry |
+| Typos detect mushkil        | Constants ke saath safe   |
+
+🔥 **Aaj tumne BullMQ se zyada JavaScript ka ek bahut powerful pattern seekha hai.**
+
+Aur sach bataun? Ye pattern sirf BullMQ me nahi, Express, React, NestJS, Next.js, VS Code extensions, aur bahut saare production codebases me milta hai. Jab bhi tumhe **"string → function"** mapping karni ho, registry pattern ek bahut clean solution hota hai.
