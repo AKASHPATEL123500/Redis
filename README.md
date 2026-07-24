@@ -318,7 +318,7 @@ If this repo helped you understand Redis or BullMQ better, drop a **star** — i
 
 Questions, feedback, or just want to talk backend architecture? Reach out:
 
-- GitHub: [@AKASHPA](https://github.com/AKASHPA)
+- GitHub: [@AKASHPATEL123500](https://github.com/AKASHPA)
 - LinkedIn: _add your link here_
 - Portfolio: _add your link here_
 
